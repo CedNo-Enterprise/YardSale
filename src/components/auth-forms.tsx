@@ -41,13 +41,16 @@ export function SignInForm({
         required
         autoComplete="email"
       />
+      {/* No minimum length here, unlike registration. This field takes a
+          password that already exists, and the rules an account was created
+          under may not be today's — holding someone at the door over a
+          password the API would happily accept helps nobody. */}
       <TextField
         id="password"
         name="password"
         type="password"
         label={labels.password}
         required
-        minLength={12}
         maxLength={64}
         autoComplete="current-password"
       />
