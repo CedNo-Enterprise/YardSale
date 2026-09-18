@@ -12,7 +12,8 @@ Buy and sell second-hand goods from people nearby.
 
 ## Getting started
 
-Requires Node.js 20.19+ or 22.13+.
+Requires Node.js 20.9+ (`next` engine floor). Developed and tested on Node.js
+24 LTS "Krypton" — the recommended version.
 
 ```bash
 npm install
