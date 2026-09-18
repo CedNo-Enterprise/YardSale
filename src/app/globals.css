@@ -1,26 +1,236 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ---------------------------------------------------------------------------
+   YardSale visual system — "the route card".
+   A Saturday-morning run across driveways, kept like a rally roadbook: paper
+   stock, ink, a marker-blue line drawn between stops, and one signal colour
+   reserved for whatever is happening right now.
+---------------------------------------------------------------------------- */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  /* Tells the browser which way to paint the controls it draws itself — the
+     date picker panel, its calendar icon, scrollbars. Without it the icon on a
+     date field is black on a dark background, which is to say invisible. */
+  color-scheme: light;
+
+  --paper: #faf9f5;
+  --card: #ffffff;
+  --ink: #17203a;
+  --ink-soft: #5a6484;
+  --haze: #e2e4da;
+  --route: #1f4fe8;
+  --on-route: #ffffff;
+  --flag: #f2521b;
+  --moss: #4a7a37;
+  --dusk: #8a8f9e;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: dark;
+
+    --paper: #12172a;
+    --card: #191f36;
+    --ink: #eef0f6;
+    --ink-soft: #9aa3bd;
+    --haze: #2b3350;
+    --route: #7d9bff;
+    --on-route: #12172a;
+    --flag: #ff7a4d;
+    --moss: #8fc472;
+    --dusk: #737c96;
   }
 }
 
+@theme inline {
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-haze: var(--haze);
+  --color-route: var(--route);
+  --color-on-route: var(--on-route);
+  --color-flag: var(--flag);
+  --color-moss: var(--moss);
+  --color-dusk: var(--dusk);
+
+  --font-display: var(--font-bricolage), system-ui, sans-serif;
+  --font-sans: var(--font-public-sans), system-ui, sans-serif;
+
+  --radius-tab: 3px;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+/* Headlines carry the personality: condensed-ish grotesque, packed tight. */
+.display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  font-variation-settings: "wdth" 85;
+}
+
+/* The spine that runs down an itinerary, drawn rather than bordered. */
+.route-spine::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 34px;
+  bottom: -18px;
+  width: 2px;
+  background: var(--haze);
+}
+
+.route-spine:last-child::before {
+  display: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Form controls. The native elements are kept — they carry the semantics, the
+   keyboard behaviour and the mobile pickers — and only their skin is replaced.
+---------------------------------------------------------------------------- */
+
+.checkbox {
+  appearance: none;
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  display: grid;
+  place-content: center;
+  border: 1.5px solid color-mix(in srgb, var(--ink) 30%, transparent);
+  border-radius: 4px;
+  background: var(--card);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+/* The tick is drawn from two borders rather than an icon, so it takes its
+   colour from the theme and stays crisp at any zoom. */
+.checkbox::after {
+  content: "";
+  width: 0.6rem;
+  height: 0.3rem;
+  border-left: 2px solid var(--on-route);
+  border-bottom: 2px solid var(--on-route);
+  border-radius: 1px;
+  transform: translateY(-1px) rotate(-45deg) scale(0.4);
+  opacity: 0;
+  transition:
+    transform 120ms ease-out,
+    opacity 90ms ease-out;
+}
+
+.checkbox:hover:not(:checked) {
+  border-color: var(--route);
+}
+
+.checkbox:checked {
+  background: var(--route);
+  border-color: var(--route);
+}
+
+.checkbox:checked::after {
+  transform: translateY(-1px) rotate(-45deg) scale(1);
+  opacity: 1;
+}
+
+.checkbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* The calendar button inside a date field. The browser's own glyph differs per
+   platform and is drawn at a size of its choosing, so it is replaced with one
+   that matches the chevron on a select. The colour has to be baked into the
+   SVG — this pseudo-element cannot read a custom property — hence the second
+   copy for dark mode. */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0 0 0 0.5rem;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.75;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%235a6484' stroke-width='1.6' stroke-linecap='round'%3E%3Crect x='2.75' y='4.25' width='14.5' height='13' rx='2.5'/%3E%3Cpath d='M2.75 8.25h14.5M6.75 2.5v3.25M13.25 2.5v3.25'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  transition: opacity 120ms ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%239aa3bd' stroke-width='1.6' stroke-linecap='round'%3E%3Crect x='2.75' y='4.25' width='14.5' height='13' rx='2.5'/%3E%3Cpath d='M2.75 8.25h14.5M6.75 2.5v3.25M13.25 2.5v3.25'/%3E%3C/svg%3E");
+  }
+}
+
+input[type="date"]:hover::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]:hover::-webkit-calendar-picker-indicator,
+input[type="date"]:focus::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]:focus::-webkit-calendar-picker-indicator {
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   Confirmations and notices. The app never uses the browser's own alert or
+   confirm: they cannot be translated, styled, or made to match anything here.
+---------------------------------------------------------------------------- */
+
+/* A modal dialog centres itself with `margin: auto`, which Tailwind's preflight
+   resets to 0 along with every other element's. Put it back. */
+.confirm-dialog {
+  margin: auto;
+}
+
+.confirm-dialog::backdrop {
+  background: color-mix(in srgb, #0b1020 62%, transparent);
+  backdrop-filter: blur(2px);
+}
+
+.confirm-dialog[open] {
+  animation: dialog-in 160ms ease-out;
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+}
+
+/* Motion here answers an action the reader just took, which is the one kind
+   worth animating. */
+.notice {
+  animation: notice-in 180ms ease-out;
+}
+
+@keyframes notice-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Focus that stays visible on every surface. */
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--route);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
